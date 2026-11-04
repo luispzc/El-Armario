@@ -48,3 +48,5 @@ No se hicieron commits ni despliegues desde esta entrega. Los archivos node_modu
 ## Tarjeta y compra
 
 El detalle aparece con una entrada suave y se cierra con una salida breve. Al pulsar Me la llevo, el pago reemplaza el detalle en la misma tarjeta: resumen compacto de nombre, precio, talla y estado, QR e instrucciones. En móvil, la tarjeta gira para mostrar esa cara de pago; Volver al detalle invierte el giro y devuelve el foco al botón de compra. Las caras inactivas son inert y se excluyen de la navegación accesible. Se respeta la preferencia de reducir movimiento.
+
+El proxy usa global_fetch_strictly_public para llegar al backend por su dominio workers.dev. Esta opción debe permanecer en wrangler.toml al desplegar.

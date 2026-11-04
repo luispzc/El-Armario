@@ -1,6 +1,8 @@
 name = "el-armario"
 main = "src/worker.js"
 compatibility_date = "2026-11-04"
+# Permite que el proxy llegue al otro Worker mediante su URL pública workers.dev.
+compatibility_flags = ["global_fetch_strictly_public"]
 
 [assets]
 directory = "./dist"

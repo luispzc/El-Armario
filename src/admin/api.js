@@ -3,7 +3,8 @@ export async function adminRequest(path,options={}) {
  const {body,...rest}=options;
  const form=body instanceof FormData;
  const response=await fetch('/api/admin'+path,{credentials:'same-origin',...rest,headers:{'X-Admin-Request':'1',...(!form&&body?{'Content-Type':'application/json'}:{}),...rest.headers},body:body?(form?body:JSON.stringify(body)):undefined});
- let payload;try{payload=await response.json();}catch{throw new ApiError('El servidor no devolvió una respuesta válida.',response.status);}
+ if(!response.headers.get('Content-Type')?.includes('application/json'))throw new ApiError('No se pudo conectar el panel con la API. Revisa el despliegue y la configuración del Worker del frontend.',response.status);
+ let payload;try{payload=await response.json();}catch{throw new ApiError('La API devolvió datos incompletos. Vuelve a intentarlo.',response.status);}
  if(!response.ok)throw new ApiError(payload.error||'No se pudo completar la operación.',response.status);
  return payload;
 }
