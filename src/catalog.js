@@ -29,7 +29,7 @@ export function imageSources(url, width = 1000) {
 // La cuadrícula y el detalle piden solo la resolución que necesita cada pantalla.
 export const CARD_IMAGE_SIZES = '(max-width: 520px) calc((100vw - 48px) / 2), (max-width: 760px) calc((100vw - 62px) / 3), (max-width: 1000px) calc((100vw - 104px) / 4), (max-width: 1296px) calc((100vw - 162px) / 4), 284px';
 export const DETAIL_IMAGE_SIZES = '(max-width: 520px) calc(100vw - 24px), (max-width: 972px) calc((100vw - 32px) / 2), 470px';
-export const ZOOM_IMAGE_SIZES = '(max-width: 520px) calc((100vw - 24px) * 1.6), (max-width: 972px) calc((100vw - 32px) * 0.8), 752px';
+export const ZOOM_IMAGE_SIZES = '(max-width: 520px) calc((100vw - 24px) * 2.5), (max-width: 972px) calc((100vw - 32px) * 1.25), 1175px';
 export function imageSrcSet(url, attempt = 0, maxWidth = 960) {
  if (imageSources(url).length !== 2 || attempt > 1) return undefined;
  return [240, 360, 480, 640, 960, 1280, 1600].filter(width => width <= maxWidth)

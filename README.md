@@ -58,3 +58,7 @@ Si se añaden pedidos, reservas o varios administradores, migrar a una BD relaci
 Las fotos de Drive ofrecen variantes de 240 a 960 px con srcset y sizes; el navegador elige según ancho y densidad de pantalla. El zoom habilita hasta 1600 px. Las cuatro primeras tarjetas se cargan inmediatamente (la primera con prioridad alta); las restantes usan carga diferida. Hay preconexión al servidor de fotos y respaldo de miniaturas del mismo tamaño.
 
 En el detalle se precarga únicamente la siguiente foto, después de cargar la actual y durante un periodo libre. Se omite esa precarga si el navegador informa ahorro de datos o conexión 2G. No se modifican archivos de Drive ni se añade un servicio de pago. Las URLs de miniaturas siguen dependiendo del servicio público de Google.
+
+## Visor con arrastre
+
+Al ampliar una foto, el visor permite arrastrarla con mouse o dedo sin barras de desplazamiento internas. La posición se limita a los bordes de la imagen y se reajusta si cambia el tamaño del visor. Clic o Enter/Espacio alternan el zoom; las flechas mueven la foto ampliada y Home la centra. Cambiar de foto reinicia el zoom. La resolución ampliada se solicita solo cuando se activa el zoom.
