@@ -10,8 +10,7 @@ export function normalizeProducts(rows) {
  seen.add(code);
  const size = String(row.talla || '').trim();
  const photos = [row.foto1, row.foto2, row.foto3].filter(v => typeof v === 'string' && v.trim()).map(v => v.trim());
- const ai = String(row.foto_ia || '').trim();
- return [{ code, name, price, size, filterSize: size.match(/\(([^)]+)\)/)?.[1].trim() || size, type: String(row.tipo || '').trim(), gender: normalize(row.genero), description: String(row.descripcion || '').trim(), sold: ['si','true','1'].includes(normalize(row.vendido)), photos: [...(ai ? [{url:ai, ai:true}] : []), ...photos.map(url => ({url, ai:false}))] }];
+ return [{ code, name, price, size, filterSize: size.match(/\(([^)]+)\)/)?.[1].trim() || size, type: String(row.tipo || '').trim(), gender: normalize(row.genero), description: String(row.descripcion || '').trim(), sold: ['si','true','1'].includes(normalize(row.vendido)), photos: [String(row.foto_ia || '').trim(), ...photos].filter(Boolean).map(url => ({url})) }];
  });
 }
 export function parseCatalog(csv) {

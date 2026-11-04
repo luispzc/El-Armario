@@ -32,7 +32,7 @@ Las variables VITE_ son públicas: nunca guardes contraseñas o credenciales aqu
 
 ## Catálogo
 
-Columnas: codigo, nombre, tipo, talla, precio, foto1, foto2, foto3, vendido, genero, descripcion, foto_ia. Código único y precio no negativo. Las tallas entre paréntesis se agrupan en el filtro. Se reconoce vendido=si/sí/true/1. foto_ia se presenta como imagen referencial, seguida por fotos reales en el detalle.
+Columnas: codigo, nombre, tipo, talla, precio, foto1, foto2, foto3, vendido, genero, descripcion, foto_ia. Código único y precio no negativo. Las tallas entre paréntesis se agrupan en el filtro. Se reconoce vendido=si/sí/true/1. La imagen foto_ia se muestra primero cuando existe, seguida de foto1, foto2 y foto3. No se muestran etiquetas ni avisos de IA.
 
 Incluye búsqueda por nombre/código, filtros combinables, orden por precio/nombre, carga incremental, detalle enlazable mediante #prenda=CODIGO, galería, ampliación de imagen, QR y enlace de WhatsApp. El envío de WhatsApp lo realiza el visitante.
 
