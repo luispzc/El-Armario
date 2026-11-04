@@ -19,11 +19,21 @@ export function parseCatalog(csv) {
  if (result.errors.length) throw new Error('El archivo del catálogo contiene filas incompletas.');
  return result.data;
 }
-export function imageSources(url) {
+export function imageSources(url, width = 1000) {
+ const size = Math.min(1600, Math.max(240, Math.round(Number(width) || 1000)));
  if (!url) return [];
  try { const parsed = new URL(url); if (parsed.protocol !== 'https:') return [];
- if (['drive.google.com','docs.google.com'].includes(parsed.hostname)) { const id = parsed.pathname.match(/\/d\/([\w-]+)/)?.[1] || parsed.searchParams.get('id'); return id && /^[\w-]+$/.test(id) ? ['https://lh3.googleusercontent.com/d/'+id+'=w1000', 'https://drive.google.com/thumbnail?id='+id+'&sz=w1000'] : []; }
+ if (['drive.google.com','docs.google.com'].includes(parsed.hostname)) { const id = parsed.pathname.match(/\/d\/([\w-]+)/)?.[1] || parsed.searchParams.get('id'); return id && /^[\w-]+$/.test(id) ? ['https://lh3.googleusercontent.com/d/'+id+'=w'+size, 'https://drive.google.com/thumbnail?id='+id+'&sz=w'+size] : []; }
  return [parsed.href]; } catch { return []; }
+}
+// La cuadrícula y el detalle piden solo la resolución que necesita cada pantalla.
+export const CARD_IMAGE_SIZES = '(max-width: 520px) calc((100vw - 48px) / 2), (max-width: 760px) calc((100vw - 62px) / 3), (max-width: 1000px) calc((100vw - 104px) / 4), (max-width: 1296px) calc((100vw - 162px) / 4), 284px';
+export const DETAIL_IMAGE_SIZES = '(max-width: 520px) calc(100vw - 24px), (max-width: 972px) calc((100vw - 32px) / 2), 470px';
+export const ZOOM_IMAGE_SIZES = '(max-width: 520px) calc((100vw - 24px) * 1.6), (max-width: 972px) calc((100vw - 32px) * 0.8), 752px';
+export function imageSrcSet(url, attempt = 0, maxWidth = 960) {
+ if (imageSources(url).length !== 2 || attempt > 1) return undefined;
+ return [240, 360, 480, 640, 960, 1280, 1600].filter(width => width <= maxWidth)
+ .map(width => imageSources(url, width)[attempt] + ' ' + width + 'w').join(', ');
 }
 export function filterProducts(products, {query='',gender='',type='',size='',available=false,sort='default'}) {
  const q=normalize(query);

@@ -52,3 +52,9 @@ No se modificó la web publicada.
 Para la etapa actual, mantener Sheets para administrar el catálogo y Drive para fotos evita una migración innecesaria. El backend de lectura con caché ofrece una transición gradual; el frontend también permite mantener la conexión directa actual. Sheets y Drive siguen siendo dependencias externas y sus cambios pueden tardar en reflejarse.
 
 Si se añaden pedidos, reservas o varios administradores, migrar a una BD relacional (productos, fotos, variantes, pedidos, reservas) y almacenamiento de objetos para imágenes. La disponibilidad actual es informativa: el QR no reserva stock, no confirma pagos ni registra pedidos. Las imágenes de Drive dependen de permisos públicos. Confirmar disponibilidad por WhatsApp antes de pagar.
+
+## Carga de imágenes
+
+Las fotos de Drive ofrecen variantes de 240 a 960 px con srcset y sizes; el navegador elige según ancho y densidad de pantalla. El zoom habilita hasta 1600 px. Las cuatro primeras tarjetas se cargan inmediatamente (la primera con prioridad alta); las restantes usan carga diferida. Hay preconexión al servidor de fotos y respaldo de miniaturas del mismo tamaño.
+
+En el detalle se precarga únicamente la siguiente foto, después de cargar la actual y durante un periodo libre. Se omite esa precarga si el navegador informa ahorro de datos o conexión 2G. No se modifican archivos de Drive ni se añade un servicio de pago. Las URLs de miniaturas siguen dependiendo del servicio público de Google.
