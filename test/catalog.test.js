@@ -16,3 +16,5 @@ test('imágenes adaptables: tamaños, respaldo y URLs externas',()=>{
  assert.equal(imageSrcSet('javascript:alert(1)'),undefined);
  assert.match(imageSources(url,99999)[0],/=w1600$/);
 });
+
+test('fotos R2: variantes locales sin convertirlas en enlaces Drive',()=>{const url='/api/media/11111111-1111-1111-1111-111111111111/960.webp';assert.deepEqual(imageSources(url,240),['/api/media/11111111-1111-1111-1111-111111111111/240.webp']);assert.match(imageSrcSet(url),/480.webp 480w/);assert.match(imageSrcSet(url,0,1600),/1600.webp 1600w/);assert.equal(imageSrcSet(url,1),undefined);assert.deepEqual(imageSources('/api/media/not-valid/960.webp'),[]);});

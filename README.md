@@ -1,64 +1,46 @@
 # El Armario
 
-Catálogo en React + Vite. Usa el catálogo real de Google Sheets y las fotos de Drive. No se incorporaron productos ficticios.
+Catálogo React + Vite y panel privado /admin. Mantiene el diseño adaptable, las fotos con modelo y originales, filtros, búsqueda, galería con zoom y arrastre, QR y WhatsApp.
 
 ## Desarrollo
 
-Requiere Node.js 22.12+ o 24 LTS.
+Requiere Node.js 22.12+ o 24 LTS. Inicia primero el backend del repositorio El-Armario-Backend en el puerto 8787.
 
 ~~~sh
 npm ci
 npm run dev
 ~~~
 
-Abre la URL que imprime Vite (normalmente http://127.0.0.1:5173).
+Vite sirve el frontend en http://127.0.0.1:5173 y conecta /api con el backend local. Abre /admin para administrar. La creación de cuentas y la configuración de D1/R2 se explican en [ADMIN_SETUP.md](./ADMIN_SETUP.md).
 
 ~~~sh
 npm test
 npm run build
-npm run preview
 ~~~
+
+## Producción en Cloudflare Workers
+
+- Compilación: npm run build
+- Despliegue: npx wrangler deploy
+- Variable de compilación VITE_API_URL: /api/products
+- El wrangler.toml nuevo declara src/worker.js, los archivos de dist y el origen del backend API_ORIGIN.
+
+Publica primero el backend, con la base y el bucket ya configurados. El frontend ahora incluye un proxy pequeño para /api: el panel y su cookie HttpOnly permanecen en el mismo dominio. /admin se sirve con la entrada de la SPA. Los datos privados no se guardan en el navegador.
 
 ## Configuración
 
-Copia .env.example a .env.local si necesitas cambiar valores. Reinicia Vite después.
+.env.example contiene VITE_API_URL, VITE_WHATSAPP_NUMBER y VITE_QR_EXPIRATION. Las variables VITE_ son públicas: nunca incluyas contraseñas o tokens en ellas. El valor recomendado de VITE_API_URL es /api/products, también en Cloudflare. El logo, QR y número conservan la configuración original. El QR no confirma pagos ni reserva stock.
 
-- VITE_API_URL vacío: lee el CSV público actual configurado en src/config.js. Funciona sin desplegar el nuevo backend.
-- VITE_API_URL=http://localhost:8787/api/products: usa el backend local del repositorio El-Armario-Backend.
-- VITE_WHATSAPP_NUMBER: número internacional sin +.
-- VITE_QR_EXPIRATION: fecha de vencimiento del QR en formato YYYY-MM-DD. Se evalúa con zona horaria de Bolivia; si venció, se coordina por WhatsApp.
+## Fotos
 
-Las variables VITE_ son públicas: nunca guardes contraseñas o credenciales aquí. El logo, QR y número se conservaron de la web anterior; revisarlos antes de una futura publicación. No se verificó el beneficiario del QR ni se hizo ningún pago.
+El navegador selecciona el tamaño adecuado mediante srcset y sizes. Drive ofrece variantes de 240 a 960 px y hasta 1600 px al ampliar. Las nuevas fotos del panel se convierten a WebP en cuatro tamaños antes de subir a R2. Las primeras tarjetas tienen prioridad; las siguientes usan carga diferida. La galería prepara únicamente la siguiente foto cuando queda un momento libre y respeta el ahorro de datos.
 
-## Catálogo
+Al ampliar, puedes arrastrar con mouse o dedo sin barras de scroll internas. Clic o Enter/Espacio alternan el zoom, las flechas desplazan y Home centra la foto.
 
-Columnas: codigo, nombre, tipo, talla, precio, foto1, foto2, foto3, vendido, genero, descripcion, foto_ia. Código único y precio no negativo. Las tallas entre paréntesis se agrupan en el filtro. Se reconoce vendido=si/sí/true/1. La imagen foto_ia se muestra primero cuando existe, seguida de foto1, foto2 y foto3. No se muestran etiquetas ni avisos de IA.
+## Administración
 
-Incluye búsqueda por nombre/código, filtros combinables, orden por precio/nombre, carga incremental, detalle enlazable mediante #prenda=CODIGO, galería, ampliación de imagen, QR y enlace de WhatsApp. El envío de WhatsApp lo realiza el visitante.
+El panel permite añadir y editar los campos de la hoja, subir fotos, marcar vendido, ocultar o volver a mostrar prendas e importar el catálogo existente a D1. No hay registro público: la cuenta inicial se crea desde la terminal y no tiene contraseña predeterminada. Los cambios de inventario no requieren commits.
 
-## Cloudflare Pages / GitHub
+Antes de importar, el backend combina Sheets y D1; las ediciones guardadas en D1 tienen prioridad por código. Después de importar, D1 es la fuente del catálogo. Las fotos antiguas permanecen en Drive y las nuevas en R2.
 
-Proyecto listo para versionar: .gitignore y package-lock.json incluidos. No se crearon commits ni se hizo push.
-
-- Comando de compilación: npm run build
-- Directorio de salida: dist
-- Configurar Node.js 22 o 24.
-- Para usar la API publicada, establecer VITE_API_URL en Pages antes de compilar.
-
-No se modificó la web publicada.
-
-## Decisión de datos
-
-Para la etapa actual, mantener Sheets para administrar el catálogo y Drive para fotos evita una migración innecesaria. El backend de lectura con caché ofrece una transición gradual; el frontend también permite mantener la conexión directa actual. Sheets y Drive siguen siendo dependencias externas y sus cambios pueden tardar en reflejarse.
-
-Si se añaden pedidos, reservas o varios administradores, migrar a una BD relacional (productos, fotos, variantes, pedidos, reservas) y almacenamiento de objetos para imágenes. La disponibilidad actual es informativa: el QR no reserva stock, no confirma pagos ni registra pedidos. Las imágenes de Drive dependen de permisos públicos. Confirmar disponibilidad por WhatsApp antes de pagar.
-
-## Carga de imágenes
-
-Las fotos de Drive ofrecen variantes de 240 a 960 px con srcset y sizes; el navegador elige según ancho y densidad de pantalla. El zoom habilita hasta 1600 px. Las cuatro primeras tarjetas se cargan inmediatamente (la primera con prioridad alta); las restantes usan carga diferida. Hay preconexión al servidor de fotos y respaldo de miniaturas del mismo tamaño.
-
-En el detalle se precarga únicamente la siguiente foto, después de cargar la actual y durante un periodo libre. Se omite esa precarga si el navegador informa ahorro de datos o conexión 2G. No se modifican archivos de Drive ni se añade un servicio de pago. Las URLs de miniaturas siguen dependiendo del servicio público de Google.
-
-## Visor con arrastre
-
-Al ampliar una foto, el visor permite arrastrarla con mouse o dedo sin barras de desplazamiento internas. La posición se limita a los bordes de la imagen y se reajusta si cambia el tamaño del visor. Clic o Enter/Espacio alternan el zoom; las flechas mueven la foto ampliada y Home la centra. Cambiar de foto reinicia el zoom. La resolución ampliada se solicita solo cuando se activa el zoom.
+No se hicieron commits ni despliegues desde esta entrega. Los archivos node_modules, dist, .wrangler y .env locales están excluidos de Git.

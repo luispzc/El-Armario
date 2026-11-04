@@ -22,6 +22,8 @@ export function parseCatalog(csv) {
 export function imageSources(url, width = 1000) {
  const size = Math.min(1600, Math.max(240, Math.round(Number(width) || 1000)));
  if (!url) return [];
+ const managed=String(url).match(/^\/api\/media\/([a-f0-9-]{36})\/(240|480|960|1600)\.webp$/);
+ if(managed){const width=size<=240?240:size<=480?480:size<=960?960:1600;return ['/api/media/'+managed[1]+'/'+width+'.webp'];}
  try { const parsed = new URL(url); if (parsed.protocol !== 'https:') return [];
  if (['drive.google.com','docs.google.com'].includes(parsed.hostname)) { const id = parsed.pathname.match(/\/d\/([\w-]+)/)?.[1] || parsed.searchParams.get('id'); return id && /^[\w-]+$/.test(id) ? ['https://lh3.googleusercontent.com/d/'+id+'=w'+size, 'https://drive.google.com/thumbnail?id='+id+'&sz=w'+size] : []; }
  return [parsed.href]; } catch { return []; }
@@ -31,6 +33,10 @@ export const CARD_IMAGE_SIZES = '(max-width: 520px) calc((100vw - 48px) / 2), (m
 export const DETAIL_IMAGE_SIZES = '(max-width: 520px) calc(100vw - 24px), (max-width: 972px) calc((100vw - 32px) / 2), 470px';
 export const ZOOM_IMAGE_SIZES = '(max-width: 520px) calc((100vw - 24px) * 2.5), (max-width: 972px) calc((100vw - 32px) * 1.25), 1175px';
 export function imageSrcSet(url, attempt = 0, maxWidth = 960) {
+ if(/^\/api\/media\/[a-f0-9-]{36}\/(240|480|960|1600)\.webp$/.test(url||'')) {
+  if(attempt>0)return undefined;
+  return [240,480,960,1600].filter(width=>width<=maxWidth).map(width=>imageSources(url,width)[0]+' '+width+'w').join(', ');
+ }
  if (imageSources(url).length !== 2 || attempt > 1) return undefined;
  return [240, 360, 480, 640, 960, 1280, 1600].filter(width => width <= maxWidth)
  .map(width => imageSources(url, width)[attempt] + ' ' + width + 'w').join(', ');
