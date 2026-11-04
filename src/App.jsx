@@ -1,42 +1,11 @@
-import ImageViewer from './ImageViewer';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowUpRight, ArrowRight, Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, MessageCircle, Shirt, Sparkles, MapPin, RotateCcw } from 'lucide-react';
-import { config, whatsappLink } from './config';
-import { parseCatalog, normalizeProducts, filterProducts, imageSources, imageSrcSet, CARD_IMAGE_SIZES, DETAIL_IMAGE_SIZES, ZOOM_IMAGE_SIZES } from './catalog';
-const money = value => 'Bs ' + new Intl.NumberFormat('es-BO', {maximumFractionDigits:2}).format(value);
-const initialFilters = {query:'', gender:'', type:'', size:'', available:false, sort:'default'};
-function Photo({url, alt, eager=false, detail=false, zoom=false, priority='auto', onLoad}) {
- const sources=useMemo(()=>imageSources(url, detail ? (zoom ? 1600 : 960) : 480),[url,detail,zoom]);
- const [attempt,setAttempt]=useState(0);
- useEffect(()=>setAttempt(0),[url]);
- const sizes=detail ? (zoom ? ZOOM_IMAGE_SIZES : DETAIL_IMAGE_SIZES) : CARD_IMAGE_SIZES;
- return sources[attempt] ? <img src={sources[attempt]} srcSet={imageSrcSet(url,attempt,zoom ? 1600 : 960)} sizes={sizes} alt={alt} draggable={false} loading={eager?'eager':'lazy'} fetchPriority={priority} decoding="async" referrerPolicy="no-referrer" onLoad={onLoad} onError={()=>setAttempt(n=>n+1)}/> : <div className="photo-placeholder"><Shirt size={44}/><span>Foto no disponible</span></div>;
-}
-function Dialog({children,onClose,label,className=''}) {
- const ref=useRef(null);
- useEffect(()=>{ const element=ref.current; const previous=document.activeElement; element.showModal(); const close=()=>onClose(); element.addEventListener('close',close); const before=document.body.style.overflow; document.body.style.overflow='hidden'; return ()=>{element.removeEventListener('close',close); document.body.style.overflow=before;previous?.focus();}; },[]);
- return <dialog ref={ref} className={className} aria-label={label} onClick={e=>{if(e.target===ref.current)onClose();}}><button className="icon-button close" aria-label="Cerrar" onClick={onClose}><X/></button>{children}</dialog>;
-}
-function ProductDetail({product:p,onClose}) {
- const [index,setIndex]=useState(0), [payment,setPayment]=useState(false), [zoom,setZoom]=useState(false);
- const photo=p.photos[index];
- const [loadedPhoto,setLoadedPhoto]=useState(null);
- // Precarga solo la siguiente foto, después de cargar la actual y durante un hueco libre.
- useEffect(()=>{
-  const next=p.photos[index+1]?.url;
-  const connection=navigator.connection;
-  if(loadedPhoto!==photo?.url || !next || connection?.saveData || /(^|-)2g$/.test(connection?.effectiveType || ''))return;
-  const warm=()=>{
-   const image=new Image();image.referrerPolicy='no-referrer';image.fetchPriority='low';
-   image.sizes=DETAIL_IMAGE_SIZES;image.srcset=imageSrcSet(next)||'';image.src=imageSources(next,960)[0]||'';
-  };
-  if(window.requestIdleCallback){const idle=window.requestIdleCallback(warm,{timeout:1500});return ()=>window.cancelIdleCallback(idle);}
-  const timer=setTimeout(warm,600);return ()=>clearTimeout(timer);
- },[index,p,photo?.url,loadedPhoto]);
- const expired=!/^\d{4}-\d{2}-\d{2}$/.test(config.qrExpiration) || new Date()>new Date(config.qrExpiration+'T23:59:59-04:00');
- const message='Hola, quiero consultar por '+p.name+' (código '+p.code+', talla '+p.size+') — '+money(p.price)+'.';
- return <Dialog label={p.name} onClose={onClose} className={'product-dialog'+(zoom?' zoomed':'')}><div className="detail-layout"><div className="detail-gallery"><ImageViewer key={photo?.url || 'empty'} zoom={zoom} onZoomChange={setZoom}><Photo key={photo?.url} url={photo?.url} alt={p.name} eager detail zoom={zoom} priority="high" onLoad={()=>setLoadedPhoto(photo?.url)}/></ImageViewer>{p.photos.length>1 && <div className="gallery-controls"><button className="icon-button" aria-label="Foto anterior" disabled={index===0} onClick={()=>{setIndex(index-1);setZoom(false);}}><ChevronLeft/></button><span>{index+1} / {p.photos.length}</span><button className="icon-button" aria-label="Foto siguiente" disabled={index===p.photos.length-1} onClick={()=>{setIndex(index+1);setZoom(false);}}><ChevronRight/></button></div>}</div><div className="detail-info"><span className="eyebrow">{p.type} · {p.code}</span><h2>{p.name}</h2><p className="detail-price">{money(p.price)}</p><div className="detail-specs"><span>Talla <strong>{p.size || 'Consultar'}</strong></span><span>Estado <strong>{p.sold?'Vendido':'Disponible'}</strong></span></div>{p.description && <p className="description">{p.description}</p>}{p.sold ? <p className="notice">Esta prenda ya encontró un nuevo armario.</p> : <>{!payment && <><button className="primary full" onClick={()=>setPayment(true)}>Me la llevo <ArrowUpRight size={18}/></button><a className="secondary full" href={whatsappLink(message)} target="_blank" rel="noreferrer"><MessageCircle size={18}/> Consultar por WhatsApp</a></>}{payment && <div className="payment"><h3>{expired?'Coordinemos tu compra':'Completa tu compra'}</h3>{!expired && <><img className="qr" src="/qr.png" alt="QR de pago de El Armario"/><p>1. Consulta la disponibilidad antes de pagar {money(p.price)}.</p><p>2. Envía tu comprobante por WhatsApp para confirmar la compra.</p></>}<a className="primary full" target="_blank" rel="noreferrer" href={whatsappLink(message+(expired?' Quisiera coordinar el pago.':' Te envío mi comprobante para confirmar.'))}><MessageCircle size={18}/>{expired?'Coordinar por WhatsApp':'Enviar comprobante'}</a><button className="text-button" onClick={()=>setPayment(false)}>Volver al detalle</button></div>}</>}<p className="location"><MapPin size={15}/> La Paz, Bolivia</p></div></div></Dialog>;
-}
+import {useEffect,useMemo,useState} from 'react';
+import {ArrowUpRight,ArrowRight,Search,SlidersHorizontal,X,MessageCircle,Shirt,Sparkles,RotateCcw} from 'lucide-react';
+import Photo from './Photo';
+import ProductDetail from './ProductDetail';
+import {config,whatsappLink} from './config';
+import {parseCatalog,normalizeProducts,filterProducts} from './catalog';
+const money=value=>'Bs '+new Intl.NumberFormat('es-BO',{maximumFractionDigits:2}).format(value);
+const initialFilters={query:'',gender:'',type:'',size:'',available:false,sort:'default'};
 export default function App() {
  const [products,setProducts]=useState([]),[status,setStatus]=useState('loading'),[retry,setRetry]=useState(0),[filters,setFilters]=useState(initialFilters),[selected,setSelected]=useState(null),[visible,setVisible]=useState(24);
  useEffect(()=>{ let ignore=false; const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),25000);setStatus('loading');

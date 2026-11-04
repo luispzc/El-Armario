@@ -44,3 +44,7 @@ El panel permite añadir y editar los campos de la hoja, subir fotos, marcar ven
 Antes de importar, el backend combina Sheets y D1; las ediciones guardadas en D1 tienen prioridad por código. Después de importar, D1 es la fuente del catálogo. Las fotos antiguas permanecen en Drive y las nuevas en R2.
 
 No se hicieron commits ni despliegues desde esta entrega. Los archivos node_modules, dist, .wrangler y .env locales están excluidos de Git.
+
+## Tarjeta y compra
+
+El detalle aparece con una entrada suave y se cierra con una salida breve. Al pulsar Me la llevo, el pago reemplaza el detalle en la misma tarjeta: resumen compacto de nombre, precio, talla y estado, QR e instrucciones. En móvil, la tarjeta gira para mostrar esa cara de pago; Volver al detalle invierte el giro y devuelve el foco al botón de compra. Las caras inactivas son inert y se excluyen de la navegación accesible. Se respeta la preferencia de reducir movimiento.
