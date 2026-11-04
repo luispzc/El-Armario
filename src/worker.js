@@ -6,7 +6,7 @@ export default {
  const unsafe=!['GET','HEAD','OPTIONS'].includes(request.method);
  const origin=request.headers.get('Origin');
  if(url.pathname.startsWith('/api/admin/')&&unsafe&&origin!==url.origin)return new Response(JSON.stringify({error:'Origen no permitido'}),{status:403,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
- const upstream=new URL(env.API_ORIGIN||'https://el-armario-api.lezmarucrack.workers.dev');
+ const upstream=new URL(env.API_ORIGIN||'https://el-armario-api.catalogotienda.workers.dev');
  if(upstream.protocol!=='https:'&&!['localhost','127.0.0.1'].includes(upstream.hostname))return new Response('API no configurada',{status:503});
  upstream.pathname=url.pathname;upstream.search=url.search;
  const headers=new Headers(request.headers);headers.delete('Host');headers.set('Origin',origin||url.origin);
